@@ -1,4 +1,4 @@
-![Capa png](![image](https://user-images.githubusercontent.com/77641643/232164801-b1a2cee4-dec8-4066-adc9-d3d02d91ece4.png))
+![Capa](https://user-images.githubusercontent.com/77641643/232164942-0f2dfcea-89b6-4f5d-8c47-b48ee58ad82b.png)
 
 ## 👨🏽‍💻 Stack
 
