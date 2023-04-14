@@ -5,6 +5,8 @@
 - [x] ReactJS ( utilizando o Vite para criação do projeto )
 - [x] Typescript
 - [x] Styled-Components
+- [x] Radix UI
+- [ ] Fetch (Para requisição de API)
 
 ## Executando o projeto
 
