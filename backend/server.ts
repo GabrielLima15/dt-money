@@ -1,67 +1,69 @@
-import express from 'express'
-import bodyParser from 'body-parser'
-import fs from 'fs'
-import cors from 'cors' // Import the cors package
-import path from 'path'
+import express from 'express';
+import bodyParser from 'body-parser';
+import cors from 'cors';
+import path from 'path';
+import sqlite3 from 'sqlite3';
+import { open } from 'sqlite';
 
-const app = express()
-const port = 3333
+const app = express();
+const port = 3333;
 
-app.use(cors()) // Use cors middleware
+app.use(cors());
+app.use(bodyParser.json());
 
-app.use(bodyParser.json())
-
-const serverDataPath = path.join(__dirname, 'server.json')
+const databasePath = path.join(__dirname, 'database.db');
 
 app.get('/', (req, res) => {
-  res.json({ message: 'Bem-vindo à API dt-money' })
-})
+  res.json({ message: 'Bem-vindo à API dt-money' });
+});
 
-app.get('/transactions', (req, res) => {
+app.get('/transactions', async (req, res) => {
   try {
-    // Carregar os dados do server.json
-    const serverData = JSON.parse(fs.readFileSync(serverDataPath, 'utf-8'))
+    const db = await open({
+      filename: databasePath,
+      driver: sqlite3.Database,
+    });
 
-    // Retornar as transações
-    res.json(serverData.transactions)
+    const transactions = await db.all('SELECT * FROM transactions');
+    res.json(transactions);
   } catch (error) {
-    console.error(error)
-    res.status(500).json({ error: 'Erro interno do servidor' })
+    console.error(error);
+    res.status(500).json({ error: 'Erro interno do servidor' });
   }
-})
+});
 
-app.post('/transactions', (req, res) => {
+app.post('/transactions', async (req, res) => {
   try {
-    const newTransaction = req.body
+    const newTransaction = req.body;
 
-    // Load existing transactions
-    const serverData = JSON.parse(fs.readFileSync(serverDataPath, 'utf-8'))
-    const transactions = serverData.transactions || []
+    const db = await open({
+      filename: databasePath,
+      driver: sqlite3.Database,
+    });
 
-    // Generate a new transaction id
-    const maxId = Math.max(
-      ...transactions.map((transaction: any) => transaction.id),
-      0
-    )
-    newTransaction.id = maxId + 1
+    const result = await db.run(
+      'INSERT INTO transactions (description, price, category, type, createdAt, id) VALUES (?, ?, ?, ?, ?, ?)',
+      [
+        newTransaction.description,
+        newTransaction.price,
+        newTransaction.category,
+        newTransaction.type,
+        newTransaction.createdAt,
+        newTransaction.id,
+      ]
+    );
 
-    // Add the new transaction
-    transactions.push(newTransaction)
-
-    serverData.transactions = transactions
-    fs.writeFileSync(
-      serverDataPath,
-      JSON.stringify(serverData, null, 2),
-      'utf-8'
-    )
-
-    res.status(201).json(newTransaction)
+    if (result.changes !== undefined && result.changes > 0) {
+      res.status(201).json(newTransaction);
+    } else {
+      res.status(500).json({ error: 'Internal server error' });
+    }
   } catch (error) {
-    console.error(error)
-    res.status(500).json({ error: 'Internal server error' })
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
   }
-})
+});
 
 app.listen(port, () => {
-  console.log(`Server is listening on port:${port}`)
-})
+  console.log(`Server is listening on port:${port}`);
+});
