@@ -15,6 +15,8 @@ export function Transactions() {
     return context.transactions
   })
 
+  console.log('Transactions:', transactions) // Adicione esta linha
+
   return (
     <>
       <Header />
@@ -25,23 +27,30 @@ export function Transactions() {
 
         <TransactionsTable>
           <tbody>
-            {transactions.map((transactions) => {
-              return (
-                <tr key={transactions.id}>
-                  <td width="50%">{transactions.description}</td>
-                  <td>
-                    <PriceHighLight variant={transactions.type}>
-                      {transactions.type === 'outcome' && '- '}
-                      {priceFormatter.format(transactions.price)}
-                    </PriceHighLight>
-                  </td>
-                  <td>{transactions.category}</td>
-                  <td>
-                    {dateFormatter.format(new Date(transactions.createdAt))}
-                  </td>
-                </tr>
-              )
-            })}
+            {Array.isArray(transactions) &&
+              transactions.map((transaction) => {
+                if (!transaction) {
+                  return null
+                }
+
+                return (
+                  <tr key={transaction.id}>
+                    <td width="50%">{transaction.description}</td>
+                    <td>
+                      <PriceHighLight variant={transaction.type}>
+                        {transaction.type === 'outcome' && '- '}
+                        {priceFormatter.format(transaction.price)}
+                      </PriceHighLight>
+                    </td>
+                    <td>{transaction.category}</td>
+                    <td>
+                      {dateFormatter.format(
+                        new Date(new Date(transaction.createdAt).toISOString())
+                      )}
+                    </td>
+                  </tr>
+                )
+              })}
           </tbody>
         </TransactionsTable>
       </TransactionsContainer>

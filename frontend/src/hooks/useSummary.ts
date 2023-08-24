@@ -4,29 +4,30 @@ import { useMemo } from 'react'
 
 export function useSummary() {
   const transactions = useContextSelector(TransactionsContext, (context) => {
-    return context.transactions
-  })
+    return context.transactions;
+  });
 
   const summary = useMemo(() => {
     return transactions.reduce(
-      (acc, transactions) => {
-        if (transactions.type === 'income') {
-          acc.income += transactions.price
-          acc.total += transactions.price
-        } else {
-          acc.outcome += transactions.price
-          acc.total -= transactions.price
+      (acc, transaction) => {
+        if (transaction && transaction.type === 'income') {
+          acc.income += transaction.price;
+          acc.total += transaction.price;
+        } else if (transaction && transaction.type === 'outcome') {
+          acc.outcome += transaction.price;
+          acc.total -= transaction.price;
         }
 
-        return acc
+        return acc;
       },
       {
         income: 0,
         outcome: 0,
         total: 0,
       }
-    )
-  }, [transactions])
+    );
+  }, [transactions]);
 
-  return summary
+  return summary;
 }
+
