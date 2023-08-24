@@ -12,9 +12,16 @@
 
 Faça o clone deste projeto em seu computador e depois execute com npm:
 
+para rodar o frontend
+```bash 
+cd frontend
+npm install 
+npm run dev
+```
+
+para rodar o backend
 ```bash
- git clone {url}
- cd dt-money
+ cd backend
  npm install
  npm run dev
 ```
