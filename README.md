@@ -19,9 +19,3 @@ npm install
 npm run dev
 ```
 
-para rodar o backend
-```bash
- cd backend
- npm install
- npm run dev
-```
