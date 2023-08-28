@@ -8,14 +8,15 @@ import {
 } from './styles'
 import { TransactionsContext } from '../../contexts/TransactionsContext'
 import { dateFormatter, priceFormatter } from '../../utils/formatter'
-import { useContextSelector } from 'use-context-selector'
+import { useContext, useContextSelector } from 'use-context-selector'
+import { Trash } from 'phosphor-react'
+import { useState } from 'react'
 
 export function Transactions() {
-  const transactions = useContextSelector(TransactionsContext, (context) => {
-    return context.transactions
-  })
+  const { transactions, deleteTransaction } = useContext(TransactionsContext);
 
-  console.log('Transactions:', transactions) // Adicione esta linha
+  const [showDeleteIcon, setShowDeleteIcon] = useState(false);
+
 
   return (
     <>
@@ -26,33 +27,46 @@ export function Transactions() {
         <SearchForm />
 
         <TransactionsTable>
-          <tbody>
-            {Array.isArray(transactions) &&
-              transactions.map((transaction) => {
-                if (!transaction) {
-                  return null
-                }
+      <tbody>
+        {Array.isArray(transactions) &&
+          transactions.map((transaction) => {
+            if (!transaction) {
+              return null;
+            }
 
-                return (
-                  <tr key={transaction.id}>
-                    <td width="50%">{transaction.description}</td>
-                    <td>
-                      <PriceHighLight variant={transaction.type}>
-                        {transaction.type === 'outcome' && '- '}
-                        {priceFormatter.format(transaction.price)}
-                      </PriceHighLight>
-                    </td>
-                    <td>{transaction.category}</td>
-                    <td>
-                      {dateFormatter.format(
-                        new Date(new Date(transaction.createdAt).toISOString())
-                      )}
-                    </td>
-                  </tr>
-                )
-              })}
-          </tbody>
-        </TransactionsTable>
+            return (
+              <tr
+                key={transaction.id}
+                onMouseEnter={() => setShowDeleteIcon(true)} // Mostrar ícone ao passar o mouse
+                onMouseLeave={() => setShowDeleteIcon(false)} // Esconder ícone ao tirar o mouse
+              >
+                <td width="50%">{transaction.description}</td>
+                <td>
+                  <PriceHighLight variant={transaction.type}>
+                    {transaction.type === 'outcome' && '- '}
+                    {priceFormatter.format(transaction.price)}
+                  </PriceHighLight>
+                </td>
+                <td>{transaction.category}</td>
+                <td>
+                  {dateFormatter.format(
+                    new Date(new Date(transaction.createdAt).toISOString())
+                  )}
+                </td>
+                <td>
+                  {showDeleteIcon && (
+                    <Trash
+                      onClick={() => deleteTransaction(transaction.id)}
+                      size={20}
+                      style={{ cursor: 'pointer' }}
+                    />
+                  )}
+                </td>
+              </tr>
+            );
+          })}
+      </tbody>
+    </TransactionsTable>
       </TransactionsContainer>
     </>
   )
